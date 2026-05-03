@@ -3,7 +3,7 @@ venv/
 env/
 ENV/
 
-# Environment variables
+# Environment variables (contains secrets)
 .env
 
 # Python cache
@@ -19,11 +19,23 @@ __pycache__/
 # Testing
 .pytest_cache/
 .coverage
+htmlcov/
 
-# Database
+# Database (local)
 *.db
 *.sqlite
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Render deployment
+.DS_Store
