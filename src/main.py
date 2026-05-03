@@ -295,29 +295,6 @@ def create_session(session: SessionCreate, user_payload: dict = Depends(get_curr
     conn.close()
     return {"message": "Session created", "session_id": session_id}
 
-# @app.get("/sessions/{session_id}/attendance")
-# def get_session_attendance(session_id: int, user_payload: dict = Depends(get_current_user)):
-#     check_role(user_payload, ["trainer"])
-#     conn = get_db()
-#     cur = conn.cursor()
-    
-#     cur.execute("SELECT batch_id FROM sessions WHERE id = %s", (session_id,))
-#     session = cur.fetchone()
-#     if not session:
-#         cur.close()
-#         conn.close()
-#         raise HTTPException(status_code=404, detail="Session not found")
-    
-#     cur.execute("SELECT a.*, u.name FROM attendance a JOIN users u ON a.student_id = u.id WHERE a.session_id = %s", (session_id,))
-#     attendance = cur.fetchall()
-#     cur.close()
-#     conn.close()
-    
-#     result = []
-#     for row in attendance:
-#         result.append(dict(row))
-#     return {"session_id": session_id, "attendance": result}
-
 
 @app.get("/sessions/{session_id}/attendance")
 def get_session_attendance(session_id: int, user_payload: dict = Depends(get_current_user)):
@@ -389,6 +366,35 @@ def mark_attendance(attendance_data: AttendanceMark, user_payload: dict = Depend
     conn.close()
     return {"message": "Attendance marked successfully"}
 
+# # ---------- MONITORING ENDPOINTS ----------
+# @app.get("/monitoring/attendance")
+# def monitoring_attendance(authorization: str = Header(None)):
+#     if not authorization:
+#         raise HTTPException(status_code=401, detail="No token provided")
+#     parts = authorization.split()
+#     if parts[0].lower() != "bearer":
+#         raise HTTPException(status_code=401, detail="Invalid authorization header")
+#     token = parts[1]
+#     payload = verify_token(token)
+#     if not payload:
+#         raise HTTPException(status_code=401, detail="Invalid or expired token")
+#     if payload.get("type") != "monitoring":
+#         raise HTTPException(status_code=403, detail="Invalid token type. Use monitoring token")
+#     if payload.get("role") != "monitoring_officer":
+#         raise HTTPException(status_code=403, detail="Only monitoring officers can access")
+    
+#     conn = get_db()
+#     cur = conn.cursor()
+#     cur.execute("SELECT * FROM attendance")
+#     attendance = cur.fetchall()
+#     cur.close()
+#     conn.close()
+    
+#     result = []
+#     for row in attendance:
+#         result.append(dict(row))
+#     return {"attendance": result}
+
 # ---------- MONITORING ENDPOINTS ----------
 @app.get("/monitoring/attendance")
 def monitoring_attendance(authorization: str = Header(None)):
@@ -408,15 +414,24 @@ def monitoring_attendance(authorization: str = Header(None)):
     
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM attendance")
-    attendance = cur.fetchall()
+    cur.execute("SELECT id, session_id, student_id, status, marked_at FROM attendance")
+    rows = cur.fetchall()
     cur.close()
     conn.close()
     
     result = []
-    for row in attendance:
-        result.append(dict(row))
+    for row in rows:
+        result.append({
+            "id": row[0],
+            "session_id": row[1],
+            "student_id": row[2],
+            "status": row[3],
+            "marked_at": row[4]
+        })
+    
     return {"attendance": result}
+
+
 
 @app.api_route("/monitoring/attendance", methods=["POST", "PUT", "DELETE", "PATCH"])
 def monitoring_attendance_method_not_allowed():
@@ -447,6 +462,7 @@ def batch_summary(batch_id: int, user_payload: dict = Depends(get_current_user))
     cur.close()
     conn.close()
     return {"batch_id": batch_id, "batch_name": batch[1], "total_students": total_students}
+
 
 @app.get("/institutions/{institution_id}/summary")
 def institution_summary(institution_id: int, user_payload: dict = Depends(get_current_user)):
