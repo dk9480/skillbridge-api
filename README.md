@@ -267,3 +267,101 @@ curl -X GET https://skillbridge-api-6l4p.onrender.com/programme/summary
 ```bash
 curl -X POST https://skillbridge-api-6l4p.onrender.com/monitoring/attendance
 ```
+
+
+## 🗄️ Schema Decisions
+
+### batch_trainers (Many-to-Many)
+Allows multiple trainers to be assigned to the same batch and trainers can teach multiple batches.
+
+### batch_invites
+Secure token-based enrollment system with 7-day expiration to prevent unauthorized batch joining.
+
+### Dual-Token for Monitoring Officer
+Normal JWT: Standard authentication (24 hours)
+
+Monitoring Token: Short-lived (1 hour) with type: "monitoring" claim, scoped only to read attendance
+
+API key validation: Requires capi_key to obtain monitoring token
+
+
+## 🔐 JWT Token Structure
+
+### Normal Access Token (24 hours)
+```json
+{
+  "user_id": 9,
+  "role": "student",
+  "institution_id": 3,
+  "iat": 1746085600,
+  "exp": 1746172000,
+  "type": "access"
+}
+```
+### Monitoring Token (1 hour)
+```
+{
+  "user_id": 2,
+  "role": "monitoring_officer",
+  "iat": 1746085600,
+  "exp": 1746089200,
+  "type": "monitoring"
+}
+```
+## ✅ Working Features
+
+✅ JWT Authentication with 24h expiry
+
+✅ Role-based access control (403 on wrong role)
+
+✅ Monitoring Officer dual-token system with API key
+
+✅ All 13 API endpoints
+
+✅ 5+ pytest tests (3 with real database)
+
+✅ PostgreSQL database on Neon
+
+✅ Deployed on Render with environment variables
+
+## 📁 Submission Structure
+
+/submission
+├── CONTACT.txt
+├── README.md
+├── requirements.txt
+├── .env.example
+├── screenshots/
+│   ├── 01-signup.png
+│   ├── 02-login-new-user.png
+│   ├── 03-login-student.png
+│   ├── 04-mark-attendance.png
+│   ├── 05-different-session.png
+│   ├── 06-wrong-session-403.png
+│   ├── 07-login-trainer.png
+│   ├── 08-create-batch.png
+│   ├── 09-create-session.png
+│   ├── 10-get-attendance.png
+│   ├── 11-login-institution.png
+│   ├── 12-batch-summary.png
+│   ├── 13-login-pm.png
+│   ├── 14-programme-summary.png
+│   ├── 15-login-mo.png
+│   ├── 16-monitoring-token.png
+│   ├── 17-monitoring-attendance.png
+│   ├── 18-405-error.png
+│   ├── 19-401-error.png
+│   └── 20-403-forbidden.png
+├── src/
+│   ├── main.py
+│   ├── database.py
+│   ├── auth.py
+│   └── seed.py
+└── tests/
+    ├── test_auth.py
+    ├── test_sessions.py
+    ├── test_attendance.py
+    ├── test_monitoring.py
+    └── test_security.py
+
+    
