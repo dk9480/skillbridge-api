@@ -326,6 +326,7 @@ API key validation: Requires capi_key to obtain monitoring token
 
 ## 📁 Submission Structure
 
+```
 /submission
 ├── CONTACT.txt
 ├── README.md
@@ -363,5 +364,4 @@ API key validation: Requires capi_key to obtain monitoring token
     ├── test_attendance.py
     ├── test_monitoring.py
     └── test_security.py
-
-    
+```
