@@ -46,6 +46,9 @@ cp .env.example .env
 python src/seed.py
 
 # 6. Run the API
+uvicorn src.main:app --reload
+
+# 7. Open browser at http://localhost:8000/docs
 ```
 
 ## 📡 API Endpoints
@@ -58,6 +61,209 @@ python src/seed.py
 | POST   | /auth/login   | Login and receive JWT token     |
 
 
-uvicorn src.main:app --reload
+### Batch Management
 
-# 7. Open browser at http://localhost:8000/docs
+| Method | Endpoint                 | Role Required          |
+|--------|--------------------------|------------------------|
+| POST   | /batches                | Trainer / Institution  |
+| POST   | /batches/{id}/invite    | Trainer                |
+| POST   | /batches/join           | Student                |
+
+### Session Management
+
+| Method | Endpoint                   | Role Required |
+|--------|----------------------------|----------------|
+| POST   | /sessions                  | Trainer        |
+| GET    | /sessions/{id}/attendance  | Trainer        |
+
+
+### Attendance
+
+| Method | Endpoint           | Role Required |
+|--------|--------------------|----------------|
+| POST   | /attendance/mark   | Student        |
+
+
+### Reports & Summary
+
+| Method | Endpoint                      | Role Required        |
+|--------|-------------------------------|----------------------|
+| GET    | /batches/{id}/summary         | Institution          |
+| GET    | /institutions/{id}/summary    | Programme Manager    |
+| GET    | /programme/summary            | Programme Manager    |
+
+
+### Monitoring (Special Token Required)
+
+| Method | Endpoint                     | Role Required                       |
+|--------|------------------------------|-------------------------------------|
+| POST   | /auth/monitoring-token       | Monitoring Officer                  |
+| GET    | /monitoring/attendance       | Monitoring Officer (special token)  |
+
+
+
+## 📸 API Testing Screenshots
+
+### Authentication Tests
+
+| | |
+|:---:|:---:|
+| ![TEST 1: Signup](screenshots/01-signup.png) | ![TEST 2: Login New User](screenshots/02-login-new-user.png) |
+| *TEST 1: Signup New User* | *TEST 2: Login New User* |
+
+| | |
+|:---:|:---:|
+| ![TEST 3: Login Student](screenshots/03-login-student.png) | |
+| *TEST 3: Login as Student1* | |
+
+---
+
+### Student Tests
+
+| | |
+|:---:|:---:|
+| ![TEST 4: Mark Attendance](screenshots/04-mark-attendance.png) | ![TEST 5: Different Session](screenshots/05-different-session.png) |
+| *TEST 4: Mark Attendance (Session 4)* | *TEST 5: Try Different Session (Session 7)* |
+
+| | |
+|:---:|:---:|
+| ![TEST 6: Wrong Session 403](screenshots/06-wrong-session-403.png) | |
+| *TEST 6: Wrong Session - 403 Forbidden* | |
+
+---
+
+### Trainer Tests
+
+| | |
+|:---:|:---:|
+| ![TEST 7: Login Trainer](screenshots/07-login-trainer.png) | ![TEST 8: Create Batch](screenshots/08-create-batch.png) |
+| *TEST 7: Login as Trainer1* | *TEST 8: Create Batch* |
+
+| | |
+|:---:|:---:|
+| ![TEST 9: Create Session](screenshots/09-create-session.png) | ![TEST 10: Get Attendance](screenshots/10-get-attendance.png) |
+| *TEST 9: Create Session* | *TEST 10: Get Session Attendance* |
+
+---
+
+### Institution Tests
+
+| | |
+|:---:|:---:|
+| ![TEST 11: Login Institution](screenshots/11-login-institution.png) | ![TEST 12: Batch Summary](screenshots/12-batch-summary.png) |
+| *TEST 11: Login as Institution* | *TEST 12: Batch Summary* |
+
+---
+
+### Programme Manager Tests
+
+| | |
+|:---:|:---:|
+| ![TEST 13: Login PM](screenshots/13-login-pm.png) | ![TEST 14: Programme Summary](screenshots/14-programme-summary.png) |
+| *TEST 13: Login as Programme Manager* | *TEST 14: Programme Summary* |
+
+---
+
+### Monitoring Officer Tests
+
+| | |
+|:---:|:---:|
+| ![TEST 15: Login MO](screenshots/15-login-mo.png) | ![TEST 16: Monitoring Token](screenshots/16-monitoring-token.png) |
+| *TEST 15: Login as Monitoring Officer* | *TEST 16: Get Monitoring Token* |
+
+| | |
+|:---:|:---:|
+| ![TEST 17: Monitoring Attendance](screenshots/17-monitoring-attendance.png) | |
+| *TEST 17: Monitoring Attendance with Special Token* | |
+
+---
+
+### Error Handling Tests
+
+| | |
+|:---:|:---:|
+| ![TEST 18: 405 Error](screenshots/18-405-error.png) | ![TEST 19: 401 Error](screenshots/19-401-error.png) |
+| *TEST 18: POST on Monitoring (405)* | *TEST 19: No Token (401)* |
+
+
+## 📊 Test Results Summary
+
+| # | Test | Status |
+|---|------|--------|
+| 1 | Signup New User | ✅ |
+| 2 | Login New User | ✅ |
+| 3 | Login Student | ✅ |
+| 4 | Mark Attendance (Session 4) | ✅ |
+| 5 | Mark Attendance (Session 7) | ✅ |
+| 6 | Wrong Session (403) | ✅ |
+| 7 | Login Trainer | ✅ |
+| 8 | Create Batch | ✅ |
+| 9 | Create Session | ✅ |
+| 10 | Get Session Attendance | ✅ |
+| 11 | Login Institution | ✅ |
+| 12 | Batch Summary | ✅ |
+| 13 | Login Programme Manager | ✅ |
+| 14 | Programme Summary | ✅ |
+| 15 | Login Monitoring Officer | ✅ |
+| 16 | Get Monitoring Token | ✅ |
+| 17 | Monitoring Attendance | ✅ |
+| 18 | POST /monitoring/attendance (405) | ✅ |
+| 19 | No Token (401) | ✅ |
+| 20 | Wrong Role (403) | ✅ |
+
+## 🔧 Sample curl Commands
+
+### 1. Login as Student
+```bash
+curl -X POST https://skillbridge-api-6l4p.onrender.com/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "student1@test.com", "password": "password123"}'
+```
+
+### 2. Mark Attendance
+```bash
+curl -X POST https://skillbridge-api-6l4p.onrender.com/attendance/mark \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"session_id": 4, "status": "present"}'
+```
+
+### 3. Create Batch (Trainer)
+```bash
+curl -X POST https://skillbridge-api-6l4p.onrender.com/batches \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TRAINER_TOKEN" \
+  -d '{"name": "New Batch", "institution_id": 3}'
+```
+
+### 4. Create Session (Trainer)
+```bash
+curl -X POST https://skillbridge-api-6l4p.onrender.com/sessions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TRAINER_TOKEN" \
+  -d '{"batch_id": 1, "title": "Test Session", "date": "2026-06-01", "start_time": "10:00:00", "end_time": "12:00:00"}'
+```
+
+### 5. Get Programme Summary (PM)
+```bash
+curl -X GET https://skillbridge-api-6l4p.onrender.com/programme/summary \
+  -H "Authorization: Bearer PM_TOKEN"
+```
+
+### 6. Get Monitoring Token (MO)
+```bash
+curl -X POST https://skillbridge-api-6l4p.onrender.com/auth/monitoring-token \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer MO_TOKEN" \
+  -d '{"key": "capi_key"}'
+```
+
+### 7. Error Test - No Token (401)
+```bash
+curl -X GET https://skillbridge-api-6l4p.onrender.com/programme/summary
+```
+
+### 8. Error Test - Wrong Method (405)
+```bash
+curl -X POST https://skillbridge-api-6l4p.onrender.com/monitoring/attendance
+```
