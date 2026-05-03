@@ -299,7 +299,7 @@ API key validation: Requires capi_key to obtain monitoring token
 }
 ```
 ### Monitoring Token (1 hour)
-```
+```json
 {
   "user_id": 2,
   "role": "monitoring_officer",
