@@ -1,0 +1,6 @@
+Full Name: D K VIJENDRA KUMAR
+Email: dkvijendra04@gmail.com
+Phone: 8951742951
+GitHub: https://github.com/dk9480/skillbridge-api 
+
+Most challenging: Debugging bcrypt password hashing compatibility issues with Python 3.14 on Render, implementing dual-token JWT authentication with separate expiry times for Monitoring Officer role, and fixing PostgreSQL date/time conversion errors in session creation endpoints.
